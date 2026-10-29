@@ -33,3 +33,4 @@ jobs:
         with:
           name: hu4a1ra-apk
           path: app/build/outputs/apk/**/*.apk
+          
