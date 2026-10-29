@@ -1,69 +1,35 @@
-name: Quick Test Build
+name: Build hu4a1ra APK
 
-# Manual only: on push this built exactly the same FOSS release APK as the
-# "Build Release (foss)" job in build.yml, doubling the cost of every push.
 on:
   workflow_dispatch:
 
-permissions:
-  contents: read
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
-
 jobs:
-  build_quick:
-    name: Quick Universal Release Build
-    runs-on: blacksmith-4vcpu-ubuntu-2404
-    timeout-minutes: 15
-
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v4
 
-      - name: Set up JDK 21
-        uses: actions/setup-java@v6
+      - uses: actions/setup-java@v4
         with:
           java-version: "21"
           distribution: "temurin"
 
-      - name: Set Up Gradle
-        uses: gradle/actions/setup-gradle@v5
-        with:
-          cache-encryption-key: ${{ secrets.GRADLE_CACHE_KEY }}
-          cache-cleanup: on-success
+      - uses: gradle/actions/setup-gradle@v4
 
-      - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
-
-      - name: Build Release APK (No Lint)
-        run: ./gradlew --console=plain assembleFossRelease --warning-mode summary -x lint -x lintFossRelease
-        env:
-          METROLIST_APPLICATION_ID: com.metrolist.music.test
-          METROLIST_APP_NAME: Metrolist Testing
-          PULL_REQUEST: "false"
-          GITHUB_EVENT_NAME: ${{ github.event_name }}
-          LASTFM_API_KEY: ${{ secrets.LASTFM_API_KEY }}
-          LASTFM_SECRET: ${{ secrets.LASTFM_SECRET }}
-
-      - name: Sign APK
-        uses: ilharp/sign-android-release@v2.0.0
-        with:
-          releaseDir: app/build/outputs/apk/foss/release/
-          signingKey: ${{ secrets.KEYSTORE }}
-          keyAlias: ${{ secrets.KEY_ALIAS }}
-          keyStorePassword: ${{ secrets.KEYSTORE_PASSWORD }}
-          keyPassword: ${{ secrets.KEY_PASSWORD }}
-          buildToolsVersion: 36.0.0
-
-      - name: Move signed APK
+      - name: Create debug keystore
         run: |
-          OUTPUT_DIR="app/build/outputs/apk/foss/release"
-          mkdir -p "$OUTPUT_DIR/out"
-          find "$OUTPUT_DIR" -name "*-signed.apk" -o -name "*-unsigned-signed.apk" | xargs -I{} mv {} "$OUTPUT_DIR/out/app-universal-test-release.apk"
+          mkdir -p ~/.android
+          keytool -genkey -v -keystore ~/.android/debug.keystore -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
 
-      - name: Upload Signed APK
-        uses: actions/upload-artifact@v7
+      - name: Build APK
+        run: |
+          chmod +x gradlew
+          ./gradlew --console=plain assembleFossDebug -x lint
+        env:
+          METROLIST_APP_NAME: hu4a1ra
+
+      - uses: actions/upload-artifact@v4
         with:
-          name: app-universal-test-release
-          path: app/build/outputs/apk/foss/release/out/*
+          name: hu4a1ra-apk
+          path: app/build/outputs/apk/**/*.apk
