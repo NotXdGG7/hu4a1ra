@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="spotify_integration">Spotify import</string>
+    <string name="spotify_import_description">Paste the link of a public Spotify playlist or album to copy its songs into a playlist in this app.</string>
+    <string name="spotify_link_hint">Spotify playlist link</string>
+    <string name="spotify_paste">Paste</string>
+    <string name="spotify_import">Import</string>
+    <string name="spotify_loading">Loading…</string>
+    <string name="spotify_import_note">In Spotify, tap ⋯ on the playlist, then Share, then Copy link. The playlist must be public. Songs are matched to YouTube Music, so a few may not match exactly.</string>
     <string name="local_history">Local</string>
     <string name="remote_history">Remote</string>
 
