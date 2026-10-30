@@ -254,10 +254,6 @@ fun AboutScreen(
                 Spacer(Modifier.width(20.dp))
         
                 Column {
-                    val metrolistName = stringResource(R.string.metrolist)
-                        .lowercase(Locale.getDefault())
-                        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
-
                     Text(
                         text = "hu4a1ra",
                         style = MaterialTheme.typography.headlineLarge,
